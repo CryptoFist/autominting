@@ -6,6 +6,8 @@ import background from "./images/background.png";
 import plusbutton from "./images/img-plus.png";
 import minusbutton from "./images/img-minus.png";
 import etherico from "./images/img-ether.png";
+import mintItem from "./contract/BABF.contract";
+import mintItemWeb3 from "./contract/BABF.contract";
 
 function App() {
   const [countEth, setCountEth] = useState(0);
@@ -25,7 +27,10 @@ function App() {
     setCountEth(countEth + 1);
     setIsZero(false);
   };
-  const startMinting = async () => {};
+  const startMinting = async () => {
+    // await mintItemWeb3(countEth);
+    await mintItem(countEth, 100);
+  };
   return (
     <section
       className="mintingSection"
@@ -77,7 +82,7 @@ function App() {
             onClick={startMinting}
             disabled={isZero}
           >
-            START MINT
+            Mint Now
           </button>
         </div>
       </div>
