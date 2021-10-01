@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import logo from "./logo.svg";
 import "./App.scss";
 
 import background from "./images/background.png";
 import plusbutton from "./images/img-plus.png";
 import minusbutton from "./images/img-minus.png";
 import etherico from "./images/img-ether.png";
-import mintItem from "./contract/BABF.contract";
-import mintItemWeb3 from "./contract/BABF.contract";
+import test from "./contract/BABF.contract";
+import { count } from "console";
+import { getBigNumber } from "./lib/helper";
+import mintTokens from "./contract/BABF.contract";
 
 function App() {
   const [countEth, setCountEth] = useState(0);
@@ -28,8 +29,13 @@ function App() {
     setIsZero(false);
   };
   const startMinting = async () => {
-    // await mintItemWeb3(countEth);
-    await mintItem(countEth, 100);
+    const result = await mintTokens(countEth, getBigNumber(0.1), getBigNumber(0.0000001));
+    if (result === true) {
+      console.log('minted successfully');
+    } else {
+      console.log('minting failed!');
+    }
+    
   };
   return (
     <section
