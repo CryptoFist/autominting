@@ -1,4 +1,5 @@
 $font-mont: "Montserrat";
+$font-size-normal: 25px;
 .mintingSection {
   width: 100vw;
   height: 100vh;
@@ -29,58 +30,144 @@ $font-mont: "Montserrat";
       font-size: 40px;
       font-family: $font-mont;
     }
-    .ether-count {
+    .selecting-div {
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-around;
-      .div-manage {
-        .manage-ether {
-          width: 20px;
-          height: 20px;
-          cursor: pointer;
-          transition: all 0.5s ease;
-          &:hover {
-            opacity: 0.8;
+      align-content: center;
+      justify-content: center;
+      margin-bottom: 40px;
+      .selecting {
+        min-width: 230px;
+        max-width: 40%;
+        font-size: $font-size-normal;
+        font-style: $font-mont;
+        line-height: 1.2;
+        color: black;
+        border-radius: 1em;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        &.account-selecting {
+          margin-right: 30px;
+        }
+        &.token-selecting {
+          
+        }
+        .accountItem {
+          text-align: center;
+        }
+        .tokenItem {
+          text-align: center;
+        }
+      }
+    }
+    .settings-div {
+      margin-bottom: 40px;
+      .ether-count {
+        align-items: center;
+        display: flex;
+
+        .subscript {
+          font-size: $font-size-normal;
+          margin-top: unset!important;
+          margin-bottom: unset!important;
+          width: 8em;
+          text-align: start;
+        }
+        
+        .div-manage {
+          .manage-ether {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            &:hover {
+              opacity: 0.8;
+            }
+          }
+        }
+        .count-ether {
+          font-size: $font-size-normal;
+          min-width: 150px;
+          max-width: calc(50% - 80px);
+          padding-left: 1em;
+          padding-right: 0.5em;
+          border-radius: 10em;
+          border: unset;
+          background-color: #474348;
+          padding-top: 5px;
+          padding-bottom: 5px;
+          color: white;
+        }
+      }
+      .nft-count {
+        display: flex;
+        flex-wrap: wrap;
+        align-content: center;
+        align-items: center;
+        justify-content: start;
+        margin-top: 10px;
+        .text {
+          font-size: $font-size-normal;
+          color: white;
+          width: 8em;
+          text-align: start;
+          &.unit {
+            width: unset;
+            margin-left: 10px;
+          }
+        }
+        .nft-value {
+          font-size: $font-size-normal;
+          padding-left: 10px;
+          min-width: 150px;
+          max-width: calc(50% - 80px);
+          border-radius: 10em;
+          border: unset;
+          padding-top: 5px;
+          padding-bottom: 5px;
+          padding-left: 1em;
+          padding-right: 0.5em;
+          background-color: #474348;
+          color: white;
+          &.value-ether {
+            
+          }
+          &.gas-ether {
           }
         }
       }
-      .count-ether {
-        font-weight: 600;
-        font-size: 30px;
-        width: 40px;
-        color: white;
-      }
-      .split {
-        width: 2px;
-        height: 48px;
-        background: white;
-      }
-      .ether-icon {
-        width: 17px;
-        height: 28px;
-      }
-      .value-ether {
-        font-weight: 600;
-        font-size: 30px;
-        color: white;
+    }
+
+    .details-div {
+      .minting-info {
+        display: flex;
+        margin-bottom: 13px;
+        font-family: $font-mont;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 20px;
+        color: #FFFFFF;
+        .value-info {
+          opacity: 0.4;
+          width: 30%;
+        }
+        .tx-status {
+          width: calc(70% - 31px);
+          overflow: auto;
+          overflow-wrap: anywhere;
+          text-align: start;
+          height: 5em;
+          border: 1px solid white;
+          border-radius: 1em;
+          padding-left: 20px;
+          padding-top: 15px;
+          font-weight: 100;
+          white-space: pre-line;
+        }
+        align-items: center;
+        justify-content: space-between;
       }
     }
-    .minting-info {
-      display: flex;
-      margin-bottom: 13px;
-      font-family: $font-mont;
-      font-style: normal;
-      font-weight: bold;
-      font-size: 16px;
-      line-height: 16px;
-      color: #FFFFFF;
-      .value-info {
-        opacity: 0.4;
-      }
-      align-items: center;
-      justify-content: space-between;
-    }
+
     .processButton {
       display: flex;
       align-items: center;

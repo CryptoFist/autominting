@@ -1,42 +1,97 @@
-import React, { useState } from "react";
+import React, { ChangeEvent, useState, useEffect } from "react";
 import "./App.scss";
 
 import background from "./images/background.png";
-import plusbutton from "./images/img-plus.png";
-import minusbutton from "./images/img-minus.png";
-import etherico from "./images/img-ether.png";
-import test from "./contract/BABF.contract";
-import { count } from "console";
-import { getBigNumber } from "./lib/helper";
-import mintTokens from "./contract/BABF.contract";
+import { mintTokens, getEtherBalance, getBABFBalance } from "./contract/BABF.contract";
+import settings from "./contract/settings.json";
+import Details from "./component/details.component";
+import Settings from "./component/settings.component";
+import Selecting from "./component/selecting.component";
 
 function App() {
-  const [countEth, setCountEth] = useState(0);
+  
   const [isZero, setIsZero] = useState(true);
-  const [serviceFee, setServiceFee] = useState(0);
 
-  const minusEther = () => {
-    if (countEth > 0) {
-      setCountEth(countEth - 1);
-      setIsZero(false);
-      if (countEth === 1) {
-        setIsZero(true);
-      }
+  // data for selecting
+  const [tokens, setTokens] = useState([{name: '', address: '', abi: ''}]);
+  const [wallets, setWallets] = useState([{name: '', address: '', priKey: ''}]);
+  const [tokenID, setTokenID] = useState(0);
+  const [walletID, setWalletID] = useState(0); 
+
+  // data for settings
+  const [nftCount, setNFTCount] = useState(0);
+  const [payableAmount, setPayableAmount] = useState(0);
+  const [gasFee, setGasFee] = useState(0);
+
+  // data for details
+  const [ethBalance, setEthBalance] = useState(0);
+  const [nftBalance, setNFTBalance] = useState(0);
+  const [txStatus, setTxStatus] = useState('tx not start');
+
+  useEffect(() => {
+    console.log('loading settings');
+    const tokenDatas = [];
+    const walletDatas = [];
+    for (let i = 0; i < settings.tokens.length; i ++) {
+      const token = settings.tokens[i];
+      tokenDatas.push({name: token.tokenName, address: token.tokenAddress, abi: token.tokenABI});
     }
-  };
-  const plusEther = () => {
-    setCountEth(countEth + 1);
-    setIsZero(false);
-  };
+    for (let i = 0; i < settings.wallets.length; i ++) {
+      const wallet = settings.wallets[i];
+      walletDatas.push({name: wallet.walletName, address: wallet.walletAddress, priKey: wallet.walletPrivateKey });
+    }
+    setTokens(tokenDatas as any);
+    setWallets(walletDatas as any);
+    return;
+  }, []);
+
   const startMinting = async () => {
-    const result = await mintTokens(countEth, getBigNumber(0.1), getBigNumber(0.0000001));
+    const tmp = isZero;
+    setIsZero(true);
+    setTxStatus('minting...');
+    const result = await mintTokens(nftCount, payableAmount, gasFee, tokens[tokenID], wallets[walletID], setTxStatus);
+    setIsZero(tmp);
     if (result === true) {
       console.log('minted successfully');
     } else {
       console.log('minting failed!');
     }
-    
   };
+  const selectAccount = async (e: ChangeEvent<HTMLSelectElement>) => {
+    const selectedIndex = e.target.selectedIndex;
+    setWalletID(selectedIndex);
+  }
+  const selectToken = async (e: ChangeEvent<HTMLSelectElement>) => {
+    setTokenID(e.target.selectedIndex);
+  }
+  const changePayableAmount = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+    if (value > 0 && nftCount > 0 && gasFee > 0) {
+      setIsZero(false);
+    } else {
+      setIsZero(true);
+    }
+    setPayableAmount(Number(value));
+  }
+  const changeNFT = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+    if (value > 0 && payableAmount > 0 && gasFee > 0) {
+      setIsZero(false);
+    } else {
+      setIsZero(true);
+    }
+    setNFTCount(Number(value));
+  }
+  const changeGasFee = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+    if (value > 0 && payableAmount > 0 && nftCount > 0) {
+      setIsZero(false);
+    } else {
+      setIsZero(true);
+    }
+    setGasFee(Number(value));
+  }
+
   return (
     <section
       className="mintingSection"
@@ -44,43 +99,12 @@ function App() {
     >
       <div className="mintingDiv">
         <h1 className="title">Mint Settings</h1>
-        <div className="ether-count">
-          <div
-            className="div-manage"
-            onClick={() => minusEther()}
-            aria-hidden="true"
-          >
-            <img
-              className="manage-ether minus"
-              src={minusbutton}
-              alt="minus ether"
-              // hidden={isZero}
-            />
-          </div>
-          <p id="count-ether" className="count-ether">
-            {countEth}
-          </p>
-          <div
-            className="div-manage"
-            onClick={() => plusEther()}
-            aria-hidden="true"
-          >
-            <img className="manage-ether" src={plusbutton} alt="plus ether" />
-          </div>
-          <div className="split" />
-          <img className="ether-icon" src={etherico} alt="ether icon" />
-          <p id="value-ether" className="count-ether">
-            {countEth / 10}
-          </p>
-        </div>
-        <p className="minting-info">
-          <span className="value-info">Service Fee</span>
-          {serviceFee} ETH
-        </p>
-        <p className="minting-info">
-          <span className="value-info">Total</span>
-          {countEth / 10 - serviceFee} ETH
-        </p>
+        
+        <Selecting selectAccount={selectAccount} selectToken={selectToken} wallets={wallets} tokens={tokens} />
+        <Settings changeNFT={changeNFT} nftCount={nftCount} payableAmount={payableAmount} changePayableAmount={changePayableAmount}
+              gasFee={gasFee} changeGasFee={changeGasFee} />
+        <Details nftBalance={nftBalance} txStatus={txStatus} ethBalance={ethBalance} />
+       
         <div className="processButton">
           <button
             type="button"
