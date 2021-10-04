@@ -3,6 +3,7 @@ import BABF_abi from './abi/BABF_1.abi.json';
 import { AbiItem,toWei } from 'web3-utils';
 
 const web3js = new Web3(new Web3.providers.HttpProvider('https://ropsten.infura.io/v3/83dc80d8a0ea430a86135e955f7bfdba'));
+// const web3js = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/83dc80d8a0ea430a86135e955f7bfdba'));
 
 export const getBABFBalance = async (walletAddress: any, tokenAddress: any) => {
     try {
@@ -28,15 +29,16 @@ export const getEtherBalance = async (walletAddress: any) => {
 
 export const mintTokens = async (count: any, amount: any, gasFee: any, token: any, wallet: any, setTxStatus: any) => {
     try {
-        console.log(await getEtherBalance(wallet.address));
         const tokenJS = await new web3js.eth.Contract(token.abi as AbiItem[], token.address);
 
         web3js.eth.accounts.wallet.add(String(wallet.priKey));
 
         const networkId = await web3js.eth.net.getId();
-        const tx = tokenJS.methods.mintTokens(count);
 
+        const tx = tokenJS.methods[token.method](count);
         const data = tx.encodeABI();
+        console.log(data);
+
         const signedTx = await web3js.eth.accounts.signTransaction({
             from: wallet.address,
             to: token.address,
@@ -66,10 +68,7 @@ export const mintTokens = async (count: any, amount: any, gasFee: any, token: an
             // console.log(`confirmation is ${confNumber}`);
          })
         .on('error', function(error){ 
-            console.log(`error occupied : ${error}`);
-            setTxStatus(`error occupied : ${error}`);
             result = false;
-            // return false;
          })
         .then(function(receipt){
             console.log(receipt);
@@ -87,8 +86,8 @@ export const mintTokens = async (count: any, amount: any, gasFee: any, token: an
         message += `current ETH is : ${balacen_final}`;
         setTxStatus(message);   
     } catch(error: any) {
-        console.log(error);
-        setTxStatus(String(error));
+        console.log(`error occupied : ${error}`);
+        setTxStatus(`error occupied : ${error}`);
         return false;
     }
     return true;

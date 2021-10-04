@@ -13,7 +13,7 @@ function App() {
   const [isZero, setIsZero] = useState(true);
 
   // data for selecting
-  const [tokens, setTokens] = useState([{name: '', address: '', abi: ''}]);
+  const [tokens, setTokens] = useState([{name: '', address: '', abi: '', method: ''}]);
   const [wallets, setWallets] = useState([{name: '', address: '', priKey: ''}]);
   const [tokenID, setTokenID] = useState(0);
   const [walletID, setWalletID] = useState(0); 
@@ -34,7 +34,7 @@ function App() {
     const walletDatas = [];
     for (let i = 0; i < settings.tokens.length; i ++) {
       const token = settings.tokens[i];
-      tokenDatas.push({name: token.tokenName, address: token.tokenAddress, abi: token.tokenABI});
+      tokenDatas.push({name: token.tokenName, address: token.tokenAddress, abi: token.tokenABI, method: token.methodName});
     }
     for (let i = 0; i < settings.wallets.length; i ++) {
       const wallet = settings.wallets[i];
