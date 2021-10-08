@@ -23,149 +23,40 @@ $font-size-normal: 25px;
     font-family: $font-mont;
     font-style: normal;
 
+    .tasks-div {
+      margin-bottom: 30px;
+      .item-div {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        .item-subscript {
+          font-size: $font-size-normal;
+          font-style: $font-mont;
+          .wallet {
+            color: #69f0ae;
+            margin-right: 0.5em;
+            margin-left: 0.5em;
+          }
+          .token {
+            color: #69f0ae;
+            margin-left: 0.5em;
+          }
+        }
+        .item-result {
+          width: 35px;
+          height: 35px;
+          margin-left: 2em;
+        }
+      }
+    }
 
     .title {
       color: white;
       text-align: center;
       font-size: 40px;
       font-family: $font-mont;
-    }
-    .selecting-div {
-      display: flex;
-      align-content: center;
-      justify-content: center;
-      margin-bottom: 40px;
-      .selecting {
-        min-width: 230px;
-        max-width: 40%;
-        font-size: $font-size-normal;
-        font-style: $font-mont;
-        line-height: 1.2;
-        color: black;
-        border-radius: 1em;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        &.account-selecting {
-          margin-right: 30px;
-        }
-        &.token-selecting {
-          
-        }
-        .accountItem {
-          text-align: center;
-        }
-        .tokenItem {
-          text-align: center;
-        }
-      }
-    }
-    .settings-div {
-      margin-bottom: 40px;
-      .ether-count {
-        align-items: center;
-        display: flex;
-
-        .subscript {
-          font-size: $font-size-normal;
-          margin-top: unset!important;
-          margin-bottom: unset!important;
-          width: 8em;
-          text-align: start;
-        }
-        
-        .div-manage {
-          .manage-ether {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            transition: all 0.5s ease;
-            &:hover {
-              opacity: 0.8;
-            }
-          }
-        }
-        .count-ether {
-          font-size: $font-size-normal;
-          min-width: 150px;
-          max-width: calc(50% - 80px);
-          padding-left: 1em;
-          padding-right: 0.5em;
-          border-radius: 10em;
-          border: unset;
-          background-color: #474348;
-          padding-top: 5px;
-          padding-bottom: 5px;
-          color: white;
-        }
-      }
-      .nft-count {
-        display: flex;
-        flex-wrap: wrap;
-        align-content: center;
-        align-items: center;
-        justify-content: start;
-        margin-top: 10px;
-        .text {
-          font-size: $font-size-normal;
-          color: white;
-          width: 8em;
-          text-align: start;
-          &.unit {
-            width: unset;
-            margin-left: 10px;
-          }
-        }
-        .nft-value {
-          font-size: $font-size-normal;
-          padding-left: 10px;
-          min-width: 150px;
-          max-width: calc(50% - 80px);
-          border-radius: 10em;
-          border: unset;
-          padding-top: 5px;
-          padding-bottom: 5px;
-          padding-left: 1em;
-          padding-right: 0.5em;
-          background-color: #474348;
-          color: white;
-          &.value-ether {
-            
-          }
-          &.gas-ether {
-          }
-        }
-      }
-    }
-
-    .details-div {
-      .minting-info {
-        display: flex;
-        margin-bottom: 13px;
-        font-family: $font-mont;
-        font-style: normal;
-        font-weight: bold;
-        font-size: 20px;
-        color: #FFFFFF;
-        .value-info {
-          opacity: 0.4;
-          width: 30%;
-        }
-        .tx-status {
-          width: calc(70% - 31px);
-          overflow: auto;
-          overflow-wrap: anywhere;
-          text-align: start;
-          height: 10em;
-          border: 1px solid white;
-          border-radius: 1em;
-          padding-left: 20px;
-          padding-top: 15px;
-          font-weight: 100;
-          white-space: pre-line;
-        }
-        align-items: center;
-        justify-content: space-between;
-      }
     }
 
     .processButton {

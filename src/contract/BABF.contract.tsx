@@ -1,43 +1,20 @@
 import Web3 from 'web3';
-import BABF_abi from './abi/BABF_1.abi.json';
 import { AbiItem,toWei } from 'web3-utils';
 
 const web3js = new Web3(new Web3.providers.HttpProvider('https://ropsten.infura.io/v3/83dc80d8a0ea430a86135e955f7bfdba'));
 // const web3js = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/83dc80d8a0ea430a86135e955f7bfdba'));
 
-export const getBABFBalance = async (walletAddress: any, tokenAddress: any) => {
-    try {
-        const token = new web3js.eth.Contract(BABF_abi as AbiItem[], tokenAddress); 
-        const babfBalance = await token.methods.balanceOf(walletAddress).call();
-        return babfBalance;
-    } catch(error: any) {
-        console.log(error);
-    }
-    return 0;
+const delayTime = async (delay: any) => {
+    return new Promise(res => setTimeout(res, delay));
 }
 
-export const getEtherBalance = async (walletAddress: any) => {
-    console.log(walletAddress);
-    try {
-        const balance = web3js.eth.getBalance(String(walletAddress));
-        console.log(balance);
-        return balance;
-    } catch(error: any) {
-        console.log(error);
-    }
-}
-
-export const mintTokens = async (count: any, amount: any, gasFee: any, token: any, wallet: any, setTxStatus: any) => {
+const getSignedTx = async (count: any, amount: any, gasFee: any, token: any, wallet: any) => {
     try {
         const tokenJS = await new web3js.eth.Contract(token.abi as AbiItem[], token.address);
-
         web3js.eth.accounts.wallet.add(String(wallet.priKey));
-
         const networkId = await web3js.eth.net.getId();
-
         const tx = tokenJS.methods[token.method](count);
         const data = tx.encodeABI();
-        console.log(data);
 
         const signedTx = await web3js.eth.accounts.signTransaction({
             from: wallet.address,
@@ -48,47 +25,50 @@ export const mintTokens = async (count: any, amount: any, gasFee: any, token: an
             gas: 300000,
             chainId: networkId
         }, String(wallet.priKey));
+        return signedTx.rawTransaction;
+    } catch(error: any) {}
+    return "";
+}
 
-        console.log('sendSignedTransaction');
-        console.log(String(signedTx.rawTransaction));
-
-        let result = false;
-        let message = '';
-
-        await web3js.eth.sendSignedTransaction(String(signedTx.rawTransaction))
+const sendTx = async (signedTx: any, threadID: any) => {
+    let bSuccess = false;
+    try {
+        await web3js.eth.sendSignedTransaction(String(signedTx))
         .once('transactionHash', function(hash){ 
-            console.log(`hash is ${hash}\nconfiming transaction`);
-            setTxStatus(`hash is ${hash}\n\nconfirming transaction...`);
-         })
+        })
         .once('receipt', function(receipt){
-            console.log(`receipt is ${receipt}`);
-            // setTxStatus(`receipt is ${receipt}`);
-         })
+        })
         .on('confirmation', function(confNumber, receipt){ 
-            // console.log(`confirmation is ${confNumber}`);
-         })
+        })
         .on('error', function(error){ 
-            result = false;
-         })
+        })
         .then(function(receipt){
-            console.log(receipt);
-            message = `minting successed!
-                        BlockHash is generated : ${receipt.blockHash}
-                        BlockNumber is generated : ${receipt.blockNumber}
-                        Transaction hash is generated " ${receipt.transactionHash}
-                        cumulativeGasUsed : ${receipt.cumulativeGasUsed}
-                        gasUsed : ${receipt.gasUsed}\n`
-            result = true;
+            bSuccess = true;
         });
-
-        const balance = Number(await getEtherBalance(wallet.address)) / 10 ** 18;
-        const balacen_final = Number(parseFloat(String(balance)).toFixed(4))
-        message += `current ETH is : ${balacen_final}`;
-        setTxStatus(message);   
     } catch(error: any) {
-        console.log(`error occupied : ${error}`);
-        setTxStatus(`error occupied : ${error}`);
         return false;
     }
-    return true;
+    return bSuccess;
+}
+
+export const mintTokens = async (threadID: any, count: any, amount: any, gasFee: any, token: any, wallet: any, isEarly: any) => {
+    let bSuccess = false;
+    let retryTime = 0;
+
+    console.log(`thread${threadID+1} start...`);
+
+    while (true) {
+        console.log(`retryTime : ${retryTime}`);
+        const signedTx = await getSignedTx(count, amount, gasFee, token, wallet);
+        console.log('sending transaction...');
+        bSuccess = await sendTx(signedTx, threadID);
+        if (bSuccess === true || isEarly === false) {
+            console.log(`Thread${threadID} is successed!`);
+            break;
+        }
+        console.log(`Thread${threadID} is failed!`);
+        retryTime ++;
+        console.log('it will retry soon.');
+        delayTime(5000);
+    }
 }

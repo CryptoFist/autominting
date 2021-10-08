@@ -2,95 +2,109 @@ import React, { ChangeEvent, useState, useEffect } from "react";
 import "./App.scss";
 
 import background from "./images/background.png";
-import { mintTokens, getEtherBalance, getBABFBalance } from "./contract/BABF.contract";
+import { mintTokens } from "./contract/BABF.contract";
 import settings from "./contract/settings.json";
-import Details from "./component/details.component";
-import Settings from "./component/settings.component";
-import Selecting from "./component/selecting.component";
+import Tasks from "./component/tasks.component";
 
 function App() {
-  
-  const [isZero, setIsZero] = useState(true);
-
   // data for selecting
-  const [tokens, setTokens] = useState([{name: '', address: '', abi: '', method: ''}]);
-  const [wallets, setWallets] = useState([{name: '', address: '', priKey: ''}]);
-  const [tokenID, setTokenID] = useState(0);
-  const [walletID, setWalletID] = useState(0); 
-
-  // data for settings
-  const [nftCount, setNFTCount] = useState(0);
-  const [payableAmount, setPayableAmount] = useState(0);
-  const [gasFee, setGasFee] = useState(0);
-
-  // data for details
-  const [ethBalance, setEthBalance] = useState(0);
-  const [nftBalance, setNFTBalance] = useState(0);
-  const [txStatus, setTxStatus] = useState('tx not start');
+  const [tokens, setTokens] = useState([
+    { name: "", address: "", abi: "", method: "" },
+  ]);
+  const [wallets, setWallets] = useState([
+    { name: "", address: "", priKey: "" },
+  ]);
+  const [threads, setThreads] = useState([
+    {
+      id: 0,
+      wallet: "",
+      token: "",
+      NFT: "",
+      amount: "",
+      gas: "",
+      isEarly: false,
+    },
+  ]);
 
   useEffect(() => {
-    console.log('loading settings');
     const tokenDatas = [];
     const walletDatas = [];
-    for (let i = 0; i < settings.tokens.length; i ++) {
+    const threadDatas = [];
+
+    for (let i = 0; i < settings.tokens.length; i++) {
       const token = settings.tokens[i];
-      tokenDatas.push({name: token.tokenName, address: token.tokenAddress, abi: token.tokenABI, method: token.methodName});
+      tokenDatas.push({
+        name: token.tokenName,
+        address: token.tokenAddress,
+        abi: token.tokenABI,
+        method: token.methodName,
+      });
     }
-    for (let i = 0; i < settings.wallets.length; i ++) {
+    for (let i = 0; i < settings.wallets.length; i++) {
       const wallet = settings.wallets[i];
-      walletDatas.push({name: wallet.walletName, address: wallet.walletAddress, priKey: wallet.walletPrivateKey });
+      walletDatas.push({
+        name: wallet.walletName,
+        address: wallet.walletAddress,
+        priKey: wallet.walletPrivateKey,
+      });
+    }
+    for (let i = 0; i < settings.threads.length; i++) {
+      const thread = settings.threads[i];
+      threadDatas.push({
+        id: i,
+        wallet: thread.walletName,
+        token: thread.tokenName,
+        NFT: thread.NFT_amount,
+        amount: thread.Payable_amount,
+        gas: thread.Gas_Fee,
+        isEarly: thread.isEarly,
+      });
     }
     setTokens(tokenDatas as any);
     setWallets(walletDatas as any);
+    setThreads(threadDatas as any);
     return;
   }, []);
 
+  const getTokenID = (tokenName: any) => {
+    for (let i = 0; i < tokens.length; i++) {
+      if (tokens[i].name === tokenName) {
+        return i;
+      }
+    }
+    return -1;
+  };
+  const getWalletID = (walletName: any) => {
+    for (let i = 0; i < wallets.length; i++) {
+      if (wallets[i].name === walletName) {
+        return i;
+      }
+    }
+    return -1;
+  };
   const startMinting = async () => {
-    const tmp = isZero;
-    setIsZero(true);
-    setTxStatus('minting...');
-    const result = await mintTokens(nftCount, payableAmount, gasFee, tokens[tokenID], wallets[walletID], setTxStatus);
-    setIsZero(tmp);
-    if (result === true) {
-      console.log('minted successfully');
-    } else {
-      console.log('minting failed!');
+    // setInterval(checktime, 1000);
+    for (let i = 0; i < threads.length; i++) {
+      const thread = threads[i];
+      const tokenId = getTokenID(thread.token);
+      if (tokenId === -1) {
+        continue;
+      }
+      const walletId = getWalletID(thread.wallet);
+      if (walletId === -1) {
+        continue;
+      }
+      mintTokens(
+        i,
+        thread.NFT,
+        thread.amount,
+        thread.gas,
+        tokens[tokenId],
+        wallets[walletId],
+        thread.isEarly
+      );
     }
   };
-  const selectAccount = async (e: ChangeEvent<HTMLSelectElement>) => {
-    const selectedIndex = e.target.selectedIndex;
-    setWalletID(selectedIndex);
-  }
-  const selectToken = async (e: ChangeEvent<HTMLSelectElement>) => {
-    setTokenID(e.target.selectedIndex);
-  }
-  const changePayableAmount = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (value > 0 && nftCount > 0 && gasFee > 0) {
-      setIsZero(false);
-    } else {
-      setIsZero(true);
-    }
-    setPayableAmount(Number(value));
-  }
-  const changeNFT = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (value > 0 && payableAmount > 0 && gasFee > 0) {
-      setIsZero(false);
-    } else {
-      setIsZero(true);
-    }
-    setNFTCount(Number(value));
-  }
-  const changeGasFee = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (value > 0 && payableAmount > 0 && nftCount > 0) {
-      setIsZero(false);
-    } else {
-      setIsZero(true);
-    }
-    setGasFee(Number(value));
-  }
 
   return (
     <section
@@ -99,19 +113,11 @@ function App() {
     >
       <div className="mintingDiv">
         <h1 className="title">Mint Settings</h1>
-        
-        <Selecting selectAccount={selectAccount} selectToken={selectToken} wallets={wallets} tokens={tokens} />
-        <Settings changeNFT={changeNFT} nftCount={nftCount} payableAmount={payableAmount} changePayableAmount={changePayableAmount}
-              gasFee={gasFee} changeGasFee={changeGasFee} />
-        <Details nftBalance={nftBalance} txStatus={txStatus} ethBalance={ethBalance} />
-       
+
+        <Tasks tasks={threads} />
+
         <div className="processButton">
-          <button
-            type="button"
-            className="btn-process"
-            onClick={startMinting}
-            disabled={isZero}
-          >
+          <button type="button" className="btn-process" onClick={startMinting}>
             Mint Now
           </button>
         </div>
