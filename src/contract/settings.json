@@ -7,6 +7,14 @@
             "Payable_amount": 0.01,
             "Gas_Fee": 5,
             "isEarly": true
+        },
+        {
+            "walletName": "account_2",
+            "tokenName": "BABF-2-test",
+            "NFT_amount": 2,
+            "Payable_amount": 0.01,
+            "Gas_Fee": 5,
+            "isEarly": false
         }
     ],
     "wallets": [

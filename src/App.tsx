@@ -25,6 +25,7 @@ function App() {
       isEarly: false,
     },
   ]);
+  const [threadStatus, setThreadStatus] = useLocalStorage('');
 
   useEffect(() => {
     const tokenDatas = [];
@@ -63,8 +64,16 @@ function App() {
     setTokens(tokenDatas as any);
     setWallets(walletDatas as any);
     setThreads(threadDatas as any);
+    localStorage.setItem('threadStatus', '');
+    setThreadStatus('');
     return;
   }, []);
+
+  useEffect(() => {
+    // storing input name
+    const status = localStorage.getItem('threadStatus') || '';
+    setThreadStatus(status);
+  }, [threadStatus]);
 
   const getTokenID = (tokenName: any) => {
     for (let i = 0; i < tokens.length; i++) {
@@ -82,8 +91,17 @@ function App() {
     }
     return -1;
   };
+  const initStatus = (length: any) => {
+    let status = '';
+    for (let i = 0; i < length; i ++) {
+      status = status.concat(`&thread${i}=1`);
+    }
+    console.log(`status is ${status}`);
+    setThreadStatus(status);
+    localStorage.setItem('threadStatus', status);
+  }
   const startMinting = async () => {
-    // setInterval(checktime, 1000);
+    initStatus(threads.length);
     for (let i = 0; i < threads.length; i++) {
       const thread = threads[i];
       const tokenId = getTokenID(thread.token);
@@ -101,7 +119,8 @@ function App() {
         thread.gas,
         tokens[tokenId],
         wallets[walletId],
-        thread.isEarly
+        thread.isEarly,
+        setThreadStatus
       );
     }
   };
@@ -114,10 +133,10 @@ function App() {
       <div className="mintingDiv">
         <h1 className="title">Mint Settings</h1>
 
-        <Tasks tasks={threads} />
+        <Tasks tasks={threads} threadStatus={threadStatus} />
 
         <div className="processButton">
-          <button type="button" className="btn-process" onClick={startMinting}>
+          <button type="button" className="btn-process" onClick={startMinting} >
             Mint Now
           </button>
         </div>
@@ -127,3 +146,15 @@ function App() {
 }
 
 export default App;
+function useLocalStorage(localStorageKey: string): [any, any] {
+  const [value, setValue] = React.useState(
+    localStorage.getItem(localStorageKey) || ""
+  );
+
+  React.useEffect(() => {
+    localStorage.setItem(localStorageKey, value);
+  }, [value]);
+
+  return [value, setValue];
+}
+

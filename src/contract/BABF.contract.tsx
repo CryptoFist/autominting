@@ -26,7 +26,9 @@ const getSignedTx = async (count: any, amount: any, gasFee: any, token: any, wal
             chainId: networkId
         }, String(wallet.priKey));
         return signedTx.rawTransaction;
-    } catch(error: any) {}
+    } catch(error: any) {
+        console.log(error);
+    }
     return "";
 }
 
@@ -50,25 +52,33 @@ const sendTx = async (signedTx: any, threadID: any) => {
     }
     return bSuccess;
 }
-
-export const mintTokens = async (threadID: any, count: any, amount: any, gasFee: any, token: any, wallet: any, isEarly: any) => {
+const changeLocalStorage = (search: any, replace: any, setThreadStatus: any) => {
+    let storage = localStorage.getItem('threadStatus');
+    storage = storage?.replace(search, replace) || '';
+    localStorage.setItem('threadStatus', storage);
+    setThreadStatus(storage);
+}
+export const mintTokens = async (threadID: any, count: any, amount: any, gasFee: any, token: any, wallet: any, isEarly: any, setThreadStatus: any) => {
     let bSuccess = false;
     let retryTime = 0;
 
     console.log(`thread${threadID+1} start...`);
+    let valName = `thread${threadID}=1`;
 
     while (true) {
-        console.log(`retryTime : ${retryTime}`);
         const signedTx = await getSignedTx(count, amount, gasFee, token, wallet);
-        console.log('sending transaction...');
         bSuccess = await sendTx(signedTx, threadID);
         if (bSuccess === true || isEarly === false) {
-            console.log(`Thread${threadID} is successed!`);
+            changeLocalStorage(valName, `thread${threadID}=2`, setThreadStatus);
+            // console.log(`Thread${threadID} is successed!`);
             break;
         }
-        console.log(`Thread${threadID} is failed!`);
+        if (isEarly === false) {
+            changeLocalStorage(valName, `thread${threadID}=3`, setThreadStatus);
+        }
+        // console.log(`Thread${threadID} is failed!`);
         retryTime ++;
-        console.log('it will retry soon.');
+        // console.log('it will retry soon.');
         delayTime(5000);
     }
 }

@@ -27,7 +27,7 @@ $font-size-normal: 25px;
       margin-bottom: 30px;
       .item-div {
         display: flex;
-        align-items: flex-end;
+        align-items: center;
         justify-content: center;
         padding-top: 10px;
         padding-bottom: 10px;
@@ -45,9 +45,9 @@ $font-size-normal: 25px;
           }
         }
         .item-result {
-          width: 35px;
-          height: 35px;
-          margin-left: 2em;
+          width: 60px;
+            height: 60px;
+          margin-left: 5px;
         }
       }
     }
